@@ -18,6 +18,14 @@ public class Team implements Comparable<Team>{
         this.players = new HashSet<>();
     }
 
+//    public Map<String, List<Player>> playersByHeight() {
+//        Map<String, List<Player>> playersByHeight = new HashMap<>();
+//        for (Player player : getPlayers()) {
+//
+//        }
+//        return playersByHeight;
+//    }
+
     public void addPlayer(Player player) {
         players.add(player);
     }

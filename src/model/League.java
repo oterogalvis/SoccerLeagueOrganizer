@@ -76,8 +76,8 @@ public class League {
         return  new ArrayList(players);
     }
 
-    public void setPlayers(Set<Player> players) {
-        this.players = players;
+    public void setPlayers(Player[] players) {
+        this.players = new HashSet<>(Arrays.asList(players));
     }
 
     public static League getLeague() {
