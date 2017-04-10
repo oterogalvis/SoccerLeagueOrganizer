@@ -9,13 +9,13 @@ import java.util.*;
 public class Team implements Comparable<Team>{
     private String teamName;
     private String coach;
-    private List<Player> players;
+    private Set<Player> players;
 
 
     public Team(String teamName, String coach) {
         this.teamName = teamName;
         this.coach = coach;
-        this.players = new ArrayList<>();
+        this.players = new HashSet<>();
     }
 
     public void addPlayer(Player player) {
@@ -24,16 +24,6 @@ public class Team implements Comparable<Team>{
 
     public void removePlayer(Player player) {
         players.remove(player);
-    }
-
-    public List<String> getPlayersByNameAndStats() {
-        List<String> playersByName = new ArrayList<>();
-        for (Player player : getPlayers()) {
-            playersByName.add(player.getLastName() + ", " + player.getFirstName() +
-                    "\tHeight: " + player.getHeightInInches() + "\tExperience: " + player.isPreviousExperience());
-        }
-        Collections.sort(playersByName);
-        return playersByName;
     }
 
     public void deletedPlayer(Player player) {
@@ -57,10 +47,10 @@ public class Team implements Comparable<Team>{
     }
 
     public List<Player> getPlayers() {
-        return players;
+        return  new ArrayList(players);
     }
 
-    public void setPlayers(List<Player> players) {
+    public void setPlayers(Set<Player> players) {
         this.players = players;
     }
 

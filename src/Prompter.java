@@ -79,7 +79,7 @@ public class Prompter {
                     addPlayerMenu();
                     break;
                 case "Remove player from a Team":
-                    removePlayerIfPossible();
+                    removePlayerMenu();
                     break;
                 case "Exit":
                     done = true;
@@ -118,19 +118,37 @@ public class Prompter {
 
     }
 
+    private void removePlayerMenu() {
+        List<String> browseMenu = Arrays.asList("Browse by player", "Browse by team");
+        int index = promptForIndex(browseMenu, "Choose your option: ");
+        String option = browseMenu.get(index);
+        switch (option) {
+            case "Browse by player":
+                removePlayerIfPossible("player");
+                break;
+            case "Browse by team":
+                removePlayerIfPossible("team");
+                break;
+            default:
+                System.out.println("Unkown option. Please try again.\n");
+                break;
+        }
+
+    }
+
     private void addPlayerIfPossible(String browseMethod) {
         if (league.getTeams().size() <= 0) {
             System.out.println("There are no teams, please created one.\n");
         } else if (league.getPlayers().size() <= 0) {
             System.out.println("There is no more players to add.\n");
         } else if (browseMethod == "player") {
-            Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(), league.getPlayers());
+            Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(league.getPlayers()), league.getPlayers());
             Team teamToAdd = promptForTeam();
             league.addPlayerToTeam(playerToAdd, teamToAdd);
             System.out.printf("You added %s, %s to %s.\n\n", playerToAdd.getLastName(), playerToAdd.getFirstName(), teamToAdd.getTeamName());
         } else if (browseMethod == "team") {
             Team teamToAdd = promptForTeam();
-            Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(), league.getPlayers());
+            Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(league.getPlayers()), league.getPlayers());
             league.addPlayerToTeam(playerToAdd, teamToAdd);
             System.out.printf("You added %s, %s to %s.\n\n", playerToAdd.getLastName(), playerToAdd.getFirstName(), teamToAdd.getTeamName());
         } else {
@@ -138,17 +156,23 @@ public class Prompter {
         }
     }
 
-    private void removePlayerIfPossible() {
+    private void removePlayerIfPossible(String browseMethod) {
         if (league.getTeams().size() <= 0) {
             System.out.println("There are no teams, please created one.\n");
-        } else {
+        } else if (league.getAllPlayersIsideTeams().size() <= 0) {
+            System.out.println("There is no players inside any team.\n");
+        } else if (browseMethod == "team") {
             Team teamToRemove = promptForTeam();
-            if (teamToRemove.getPlayers().size() <= 0) {
-                System.out.println("This team is empty.\n");
-            }
-            Player playerToRemove = promptForPlayer(teamToRemove.getPlayersByNameAndStats(), teamToRemove.getPlayers());
+            Player playerToRemove = promptForPlayer(league.getPlayersByNameAndStats(teamToRemove.getPlayers()), teamToRemove.getPlayers());
             league.removePlayerFromTeam(playerToRemove, teamToRemove);
             System.out.printf("You remove %s, %s from %s.\n\n", playerToRemove.getLastName(), playerToRemove.getFirstName(), teamToRemove.getTeamName());
+        } else if (browseMethod == "player") {
+            Player playerToRemove = promptForPlayer(league.getPlayersByNameAndStats(league.getAllPlayersIsideTeams()), league.getAllPlayersIsideTeams());
+            Team teamToRemove = promptForTeam();
+            league.removePlayerFromTeam(playerToRemove, teamToRemove);
+            System.out.printf("You remove %s, %s from %s.\n\n", playerToRemove.getLastName(), playerToRemove.getFirstName(), teamToRemove.getTeamName());
+        } else {
+            System.out.println("Error in addPlayerIfPossible().");
         }
     }
 
@@ -162,7 +186,15 @@ public class Prompter {
         int index = promptForIndex(league.getTeamsByName(), "Choose the team:");
         List<Team> listOfTeams = league.getTeams();
         Collections.sort(listOfTeams);
-        Team team = listOfTeams.get(index);
+        Team team = null;
+        while (team == null) {
+            try {
+                team = listOfTeams.get(index);
+            } catch (IndexOutOfBoundsException ioobe) {
+                System.out.println("That option don't exist.\n");
+                team = promptForTeam();
+            }
+        }
         return team;
     }
 
@@ -170,7 +202,15 @@ public class Prompter {
         int index = promptForIndex(playersByName, "Choose the player:");
         List<Player> listOfPlayers = players;
         Collections.sort(listOfPlayers);
-        Player player = listOfPlayers.get(index);
+        Player player = null;
+        while (player == null) {
+            try {
+                player = listOfPlayers.get(index);
+            } catch (IndexOutOfBoundsException ioobe) {
+                System.out.println("That option don't exist.\n");
+                player = promptForPlayer(playersByName, players);
+            }
+        }
         return player;
     }
 
@@ -186,4 +226,3 @@ public class Prompter {
 // PENDING: IndexOutOfBoundsException.
 // PENDING: DRY. Create generic for prompt methods.
 // PENDING: promptForTeam() should have the same parameters that promptForPlayer().
-// PENDING: promptForIndex() should return index-1. FIX

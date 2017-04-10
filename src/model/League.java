@@ -7,12 +7,12 @@ import java.util.*;
  */
 public class League {
     private List<Team> teams;
-    private List<Player> players;
+    private Set<Player> players;
     private static League instance;
 
     private League() {
         teams = new ArrayList<>();
-        players = new LinkedList<>(Arrays.asList(Players.load()));
+        players = new HashSet<>(Arrays.asList(Players.load()));
     }
 
     public Team newTeam(String teamName, String coach) throws IllegalArgumentException {
@@ -31,13 +31,22 @@ public class League {
         players.add(player);
     }
 
+    public List<Player> getAllPlayersIsideTeams() {
+        List<Player> listOfPlayersInsideTeams = new ArrayList<>();
+        for (Team team : getTeams()) {
+            listOfPlayersInsideTeams.addAll(team.getPlayers());
+        }
+        Collections.sort(listOfPlayersInsideTeams);
+        return listOfPlayersInsideTeams;
+    }
+
     public boolean isPossibleCreatedTeam() {
         return (teams.size() < (players.size() / 11));
     }
 
-    public List<String> getPlayersByNameAndStats() {
+    public List<String> getPlayersByNameAndStats(List<Player> players) {
         List<String> playersByName = new ArrayList<>();
-        for (Player player : getPlayers()) {
+        for (Player player : players) {
             playersByName.add(player.getLastName() + ", " + player.getFirstName() +
                     "\t\tHeight: " + player.getHeightInInches() + "\t\tExperience: " + player.isPreviousExperience());
         }
@@ -64,10 +73,10 @@ public class League {
     }
 
     public List<Player> getPlayers() {
-        return players;
+        return  new ArrayList(players);
     }
 
-    public void setPlayers(List<Player> players) {
+    public void setPlayers(Set<Player> players) {
         this.players = players;
     }
 
