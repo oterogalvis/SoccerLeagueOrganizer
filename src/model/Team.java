@@ -1,7 +1,6 @@
 package model;
 
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 
 /**
@@ -10,17 +9,31 @@ import java.util.TreeSet;
 public class Team implements Comparable<Team>{
     private String teamName;
     private String coach;
-    private Set<Player> players;
+    private List<Player> players;
 
 
     public Team(String teamName, String coach) {
         this.teamName = teamName;
         this.coach = coach;
-        this.players = new TreeSet<>();
+        this.players = new ArrayList<>();
     }
 
     public void addPlayer(Player player) {
         players.add(player);
+    }
+
+    public void removePlayer(Player player) {
+        players.remove(player);
+    }
+
+    public List<String> getPlayersByNameAndStats() {
+        List<String> playersByName = new ArrayList<>();
+        for (Player player : getPlayers()) {
+            playersByName.add(player.getLastName() + ", " + player.getFirstName() +
+                    "\tHeight: " + player.getHeightInInches() + "\tExperience: " + player.isPreviousExperience());
+        }
+        Collections.sort(playersByName);
+        return playersByName;
     }
 
     public void deletedPlayer(Player player) {
@@ -43,11 +56,11 @@ public class Team implements Comparable<Team>{
         this.coach = coach;
     }
 
-    public Set<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(Set<Player> players) {
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 

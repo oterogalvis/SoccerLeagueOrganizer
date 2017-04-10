@@ -16,7 +16,7 @@ public class Prompter {
     private static Prompter instance;
 
     private Prompter() {
-        bufferedReader = new BufferedReader(new InputStreamReader(System.in));;
+        bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         league = League.getLeague();
     }
 
@@ -36,11 +36,11 @@ public class Prompter {
         return getInput();
     }
 
-    private int getInputInt(String output) {
+    private int getInputInt() {
         int input = 0;
         while (input < 1) {
             try {
-                input = Integer.parseInt(getInput(output));
+                input = Integer.parseInt(getInput());
             } catch (NumberFormatException nfe) {
                 System.out.println("Input must be numeric.");
                 input = 0;
@@ -52,24 +52,34 @@ public class Prompter {
         return input;
     }
 
-    private int getInputInt() {
-        return getInputInt("");
+    private int promptForIndex(List<String> options, String optionsTitle) {
+        System.out.println(optionsTitle);
+        int index = 1;
+        for (String option : options) {
+            System.out.printf("\t%d) %s\n", index, option);
+            index++;
+        }
+        return (getInputInt() - 1);
     }
 
     public void menu() {
         boolean done = false;
-        while (!done){
-            String option = promptForString(Arrays.asList(
-                    "Create new team",
-                    "Add player to a Team",
-                    "Exit"),
-                    "Choose your option: ");
+        List<String> menuOptions = Arrays.asList(
+                "Create new team",
+                "Add player to a Team",
+                "Remove player from a Team",
+                "Exit");
+        while (!done) {
+            String option = menuOptions.get(promptForIndex(menuOptions, "Choose your option: "));
             switch (option) {
                 case "Create new team":
                     createdNewTeamIfPossible();
                     break;
                 case "Add player to a Team":
                     addPlayerIfPossible();
+                    break;
+                case "Remove player from a Team":
+                    removePlayerIfPossible();
                     break;
                 case "Exit":
                     done = true;
@@ -86,7 +96,7 @@ public class Prompter {
             Team team = createNewTeam();
             System.out.printf("The team %s under %s have been created.%n%n", team.getTeamName(), team.getCoach());
         } else {
-            System.out.printf("You can only created up to %d with %d players.", league.getTeams().size(), league.getPlayers().size());
+            System.out.printf("You don't have enough players available to created more teams.\n\n", league.getTeams().size(), league.getPlayers().size());
         }
     }
 
@@ -96,39 +106,25 @@ public class Prompter {
         } else if (league.getPlayers().size() <= 0) {
             System.out.println("There is no more players to add.\n");
         } else {
-//            Player playerToAdd = promptForPlayer(league.getPlayers(), "Choose the player");
-            String playerName = promptForString(league.getPlayersByName(), "Choose the player:");
-            Player playerToAdd;
-            for (Player player : league.getPlayers()) {
-                if (player.getFullName() == playerName) {
-                    playerToAdd = player;
-                }
-            }
-            Team teamToAdd = promptForTeam(league.getTeams(), "Choose the team: ");
+            Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(), league.getPlayers());
+            Team teamToAdd = promptForTeam();
             league.addPlayerToTeam(playerToAdd, teamToAdd);
-            System.out.printf("You added %s to %s.\n\n", playerToAdd.getFirstName(), teamToAdd.getTeamName());
+            System.out.printf("You added %s, %s to %s.\n\n", playerToAdd.getLastName(), playerToAdd.getFirstName(), teamToAdd.getTeamName());
         }
     }
 
-//    private Player choosePlayer() {
-//        Player playerChose = promptForPlayer(league.getPlayers(), "Choose the player");
-//        System.out.println("You chose " + playerChose.getLastName() + ", " + playerChose.getFirstName());
-//        return playerChose;
-//    }
-
-
-//    private Team chooseTeam() {
-//        Team teamChose = promptForTeam(league.getTeams(), "Choose the team: ");
-//        System.out.println("You chose " + teamChose.getTeamName());
-//        return teamChose;
-//    }
-
-    private List<String> getTeamsByName() {
-        List<String> teamsByName = new ArrayList<>();
-        for (Team team : league.getTeams()) {
-            teamsByName.add(team.getTeamName());
+    private void removePlayerIfPossible() {
+        if (league.getTeams().size() <= 0) {
+            System.out.println("There are no teams, please created one.\n");
+        } else {
+            Team teamToRemove = promptForTeam();
+            if (teamToRemove.getPlayers().size() <= 0) {
+                System.out.println("This team is empty.\n");
+            }
+            Player playerToRemove = promptForPlayer(teamToRemove.getPlayersByNameAndStats(), teamToRemove.getPlayers());
+            league.removePlayerFromTeam(playerToRemove, teamToRemove);
+            System.out.printf("You remove %s, %s from %s.\n\n", playerToRemove.getLastName(), playerToRemove.getFirstName(), teamToRemove.getTeamName());
         }
-        return teamsByName;
     }
 
     private Team createNewTeam() {
@@ -137,40 +133,20 @@ public class Prompter {
         return league.newTeam(teamName, coach);
     }
 
-    private String promptForString(List<String> options, String optionsTitle) {
-        System.out.println(optionsTitle);
-        Integer index = 1;
-        Map<Integer, String> stringsByIndex = new HashMap<>();
-        for (String option : options) {
-            System.out.printf("\t%d) %s%n", index, option);
-            stringsByIndex.put(index, option);
-            index++;
-        }
-        return stringsByIndex.get(Integer.valueOf(getInput()));
+    private Team promptForTeam() {
+        int index = promptForIndex(league.getTeamsByName(), "Choose the team:");
+        List<Team> listOfTeams = league.getTeams();
+        Collections.sort(listOfTeams);
+        Team team = listOfTeams.get(index);
+        return team;
     }
 
-    private Team promptForTeam(List<Team> teamList, String optionTitle) {
-        System.out.println(optionTitle);
-        Integer index = 1;
-        Map<Integer, Team> teamsByIndex = new HashMap<>();
-        for (Team team : teamList) {
-            System.out.printf("\t%d) %s%n", index, team.getTeamName());
-            teamsByIndex.put(index,team);
-            index++;
-        }
-        return teamsByIndex.get(getInputInt());
-    }
-
-    private Player promptForPlayer(List<Player> playerList, String optionTitle) {
-        System.out.println(optionTitle);
-        Integer index = 1;
-        Map<Integer, Player> teamsByIndex = new HashMap<>();
-        for (Player player : playerList) {
-            System.out.printf("\t%d) %s\n", index, player.getFullName());
-            teamsByIndex.put(index,player);
-            index++;
-        }
-        return teamsByIndex.get(getInputInt());
+    private Player promptForPlayer(List<String> playersByName, List<Player> players) {
+        int index = promptForIndex(playersByName, "Choose the player:");
+        List<Player> listOfPlayers = players;
+        Collections.sort(listOfPlayers);
+        Player player = listOfPlayers.get(index);
+        return player;
     }
 
     public static Prompter getPrompter() {
@@ -182,6 +158,6 @@ public class Prompter {
 }
 
 
-// PENDING: Simplify getImput methods.
-// PENDING: Create generic promptFor method. DRY.
-// PENDING: Fix method promptForIndex to be prompForString.
+// PENDING: IndexOutOfBoundsException.
+// PENDING: DRY. Create generic for prompt methods.
+// PENDING: promptForIndex() should return index-1. FIX

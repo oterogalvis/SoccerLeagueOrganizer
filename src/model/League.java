@@ -12,7 +12,7 @@ public class League {
 
     private League() {
         teams = new ArrayList<>();
-        players = Arrays.asList(Players.load());
+        players = new LinkedList<>(Arrays.asList(Players.load()));
     }
 
     public Team newTeam(String teamName, String coach) throws IllegalArgumentException {
@@ -26,19 +26,36 @@ public class League {
         players.remove(player);
     }
 
+    public  void removePlayerFromTeam(Player player, Team team) {
+        team.removePlayer(player);
+        players.add(player);
+    }
+
     public boolean isPossibleCreatedTeam() {
         return (teams.size() < (players.size() / 11));
     }
 
-    public List<String> getPlayersByName() {
+    public List<String> getPlayersByNameAndStats() {
         List<String> playersByName = new ArrayList<>();
         for (Player player : getPlayers()) {
-            playersByName.add(player.getFullName());
+            playersByName.add(player.getLastName() + ", " + player.getFirstName() +
+                    "\t\tHeight: " + player.getHeightInInches() + "\t\tExperience: " + player.isPreviousExperience());
         }
+        Collections.sort(playersByName);
         return playersByName;
     }
 
+    public List<String> getTeamsByName() {
+        List<String> teamsByName = new ArrayList<>();
+        for (Team team : getTeams()) {
+            teamsByName.add(team.getTeamName());
+        }
+        Collections.sort(teamsByName);
+        return teamsByName;
+    }
+
     public List<Team> getTeams() {
+        Collections.sort(teams);
         return teams;
     }
 

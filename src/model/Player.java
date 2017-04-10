@@ -11,7 +11,6 @@ public class Player implements Comparable<Player>, Serializable {
 
     private String firstName;
     private String lastName;
-    private String fullName;
     private int heightInInches;
     private boolean previousExperience;
 
@@ -20,7 +19,6 @@ public class Player implements Comparable<Player>, Serializable {
         this.lastName = lastName;
         this.heightInInches = heightInInches;
         this.previousExperience = previousExperience;
-        fullName = this.lastName + ", " + this.getFirstName();
     }
 
     public String getFirstName() {
@@ -29,10 +27,6 @@ public class Player implements Comparable<Player>, Serializable {
 
     public String getLastName() {
         return lastName;
-    }
-
-    public String getFullName() {
-        return fullName;
     }
 
     public int getHeightInInches() {
