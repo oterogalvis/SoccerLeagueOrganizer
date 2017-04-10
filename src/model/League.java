@@ -41,7 +41,7 @@ public class League {
     }
 
     public boolean isPossibleCreatedTeam() {
-        return (teams.size() < (players.size() / 11));
+        return teams.size() < players.size();
     }
 
     public List<String> getPlayersByNameAndStats(List<Player> players) {

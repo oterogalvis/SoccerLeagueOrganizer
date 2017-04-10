@@ -96,7 +96,7 @@ public class Prompter {
             Team team = createNewTeam();
             System.out.printf("The team %s under %s have been created.%n%n", team.getTeamName(), team.getCoach());
         } else {
-            System.out.printf("You don't have enough players available to created more teams.\n\n", league.getTeams().size(), league.getPlayers().size());
+            System.out.printf("Is not possible to created more teams than players availables.\n\n", league.getTeams().size(), league.getPlayers().size());
         }
     }
 
