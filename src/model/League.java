@@ -81,7 +81,7 @@ public class League {
     }
 
     public static League getLeague() {
-        if (instance == null) {
+        if (null == instance) {
             instance = new League();
         }
         return instance;

@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * Created by jorgeotero on 4/7/17.
  */
-public class Team implements Comparable<Team>{
+public class Team implements Comparable<Team> {
     private String teamName;
     private String coach;
     private Set<Player> players;
@@ -18,13 +18,47 @@ public class Team implements Comparable<Team>{
         this.players = new HashSet<>();
     }
 
-//    public Map<String, List<Player>> playersByHeight() {
-//        Map<String, List<Player>> playersByHeight = new HashMap<>();
-//        for (Player player : getPlayers()) {
-//
-//        }
-//        return playersByHeight;
-//    }
+    public Map<String, List<Player>> playersByHeight() {
+        Map<String, List<Player>> playersByHeight = new HashMap<>();
+        List<Player> firstRange = new ArrayList<>();
+        List<Player> secondRange = new ArrayList<>();
+        List<Player> thirdRange = new ArrayList<>();
+        for (Player player : getPlayers()) {
+            if (player.getHeightInInches() <= 40) {
+                firstRange.add(player);
+            } else if (player.getHeightInInches() >= 47) {
+                thirdRange.add(player);
+            } else {
+                secondRange.add(player);
+            }
+        }
+        playersByHeight.put("35-40", firstRange);
+        playersByHeight.put("41-46", secondRange);
+        playersByHeight.put("47-50", thirdRange);
+        return playersByHeight;
+    }
+
+    public Map<String, Integer> playersByExperience() {
+        Map<String, Integer> playersByExperience = new HashMap<>();
+        Integer countExperienced = 0;
+        Integer countUnexperienced = 0;
+        for (Player player : getPlayers()) {
+            if (player.isPreviousExperience()) {
+                countExperienced++;
+            } else {
+                countUnexperienced++;
+            }
+            playersByExperience.put("experienced", countExperienced);
+            playersByExperience.put("inexperienced", countUnexperienced);
+        }
+        return playersByExperience;
+    }
+
+    public int percentageOfExperiencedPlayers(Map<String, Integer> playerByExperience) {
+        int experiencedPlayers = playerByExperience.get("experienced");
+        int inexperiencedPlayers = playerByExperience.get("inexperienced");
+        return (experiencedPlayers * 100) / (experiencedPlayers + inexperiencedPlayers);
+    }
 
     public void addPlayer(Player player) {
         players.add(player);
@@ -55,7 +89,7 @@ public class Team implements Comparable<Team>{
     }
 
     public List<Player> getPlayers() {
-        return  new ArrayList(players);
+        return new ArrayList(players);
     }
 
     public void setPlayers(Set<Player> players) {

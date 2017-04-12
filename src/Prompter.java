@@ -68,6 +68,7 @@ public class Prompter {
                 "Create new team",
                 "Add player to a Team",
                 "Remove player from a Team",
+                "League Balance Report",
                 "Exit");
         while (!done) {
             String option = menuOptions.get(promptForIndex(menuOptions, "Choose your option: "));
@@ -81,7 +82,11 @@ public class Prompter {
                 case "Remove player from a Team":
                     removePlayerMenu();
                     break;
+                case "League Balance Report":
+                    leagueBalanceReport();
+                    break;
                 case "Exit":
+                    System.out.printf("Exiting...");
                     done = true;
                     break;
                 default:
@@ -133,7 +138,40 @@ public class Prompter {
                 System.out.println("Unkown option. Please try again.\n");
                 break;
         }
+    }
 
+    private void leagueBalanceReport() {
+        if (league.getAllPlayersIsideTeams().size() <= 0) {
+            System.out.println("There is no players inside any team.\n");
+        } else {
+            for (Team team : league.getTeams()) {
+                if (team.getPlayers().size() <= 0) {
+                    System.out.printf("There is not players on team: %s\n\n", team.getTeamName());
+                } else {
+                    System.out.printf("League Balance Report for team %s\n", team.getTeamName());
+                    viewHeightReport(team);
+                    viewExperienceReport(team);
+                }
+            }
+        }
+    }
+
+    private void viewExperienceReport(Team team) {
+        Map<String, Integer> teamExperience = team.playersByExperience();
+        System.out.printf("\tExperience report: \n");
+        System.out.printf("\t\tThe %d %% of the players are experienced.\n" , team.percentageOfExperiencedPlayers(teamExperience));
+        System.out.printf("\t\t\t%d experienced players.\n", teamExperience.get("experienced"));
+        System.out.printf("\t\t\t%d inexperienced players.\n\n", teamExperience.get("inexperienced"));
+    }
+
+    private void viewHeightReport(Team team) {
+        System.out.printf("\tHeight report: \n");
+        for (Map.Entry<String, List<Player>> listEntry : team.playersByHeight().entrySet()) {
+            System.out.printf("\t\tThere are %d players with %s inches of height \n", listEntry.getValue().size(), listEntry.getKey());
+            for (Player player : listEntry.getValue()) {
+                System.out.printf("\t\t\t%s, %s\n", player.getLastName(), player.getFirstName());
+            }
+        }
     }
 
     private void addPlayerIfPossible(String browseMethod) {
@@ -141,12 +179,12 @@ public class Prompter {
             System.out.println("There are no teams, please created one.\n");
         } else if (league.getPlayers().size() <= 0) {
             System.out.println("There is no more players to add.\n");
-        } else if (browseMethod == "player") {
+        } else if (browseMethod.equals("player")) {
             Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(league.getPlayers()), league.getPlayers());
             Team teamToAdd = promptForTeam();
             league.addPlayerToTeam(playerToAdd, teamToAdd);
             System.out.printf("You added %s, %s to %s.\n\n", playerToAdd.getLastName(), playerToAdd.getFirstName(), teamToAdd.getTeamName());
-        } else if (browseMethod == "team") {
+        } else if (browseMethod.equals("team")) {
             Team teamToAdd = promptForTeam();
             Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(league.getPlayers()), league.getPlayers());
             league.addPlayerToTeam(playerToAdd, teamToAdd);
@@ -161,12 +199,12 @@ public class Prompter {
             System.out.println("There are no teams, please created one.\n");
         } else if (league.getAllPlayersIsideTeams().size() <= 0) {
             System.out.println("There is no players inside any team.\n");
-        } else if (browseMethod == "team") {
+        } else if (browseMethod.equals("team")) {
             Team teamToRemove = promptForTeam();
             Player playerToRemove = promptForPlayer(league.getPlayersByNameAndStats(teamToRemove.getPlayers()), teamToRemove.getPlayers());
             league.removePlayerFromTeam(playerToRemove, teamToRemove);
             System.out.printf("You remove %s, %s from %s.\n\n", playerToRemove.getLastName(), playerToRemove.getFirstName(), teamToRemove.getTeamName());
-        } else if (browseMethod == "player") {
+        } else if (browseMethod.equals("player")) {
             Player playerToRemove = promptForPlayer(league.getPlayersByNameAndStats(league.getAllPlayersIsideTeams()), league.getAllPlayersIsideTeams());
             Team teamToRemove = promptForTeam();
             league.removePlayerFromTeam(playerToRemove, teamToRemove);
@@ -203,7 +241,7 @@ public class Prompter {
         List<Player> listOfPlayers = players;
         Collections.sort(listOfPlayers);
         Player player = null;
-        while (player == null) {
+        while (null == player) {
             try {
                 player = listOfPlayers.get(index);
             } catch (IndexOutOfBoundsException ioobe) {
@@ -215,7 +253,7 @@ public class Prompter {
     }
 
     public static Prompter getPrompter() {
-        if (instance == null) {
+        if (null == instance) {
             instance = new Prompter();
         }
         return instance;
@@ -224,5 +262,6 @@ public class Prompter {
 
 
 // PENDING: IndexOutOfBoundsException.
-// PENDING: DRY. Create generic for prompt methods.
+// PENDING: DRY. Create generic for prompt methods. <T>
 // PENDING: promptForTeam() should have the same parameters that promptForPlayer().
+// PENDING: find out why the the fancy hash method is better.
