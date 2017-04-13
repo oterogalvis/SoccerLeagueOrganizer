@@ -166,19 +166,6 @@ public class Prompter {
     }
 
     private void leagueBalanceReport() {
-//        if (league.getAllPlayersIsideTeams().size() <= 0) {
-//            System.out.println("There is no players inside any team.\n");
-//        } else {
-//            for (Team team : league.getTeams()) {
-//                System.out.printf("League Balance Report for team %s\n", team.getTeamName());
-//                viewHeightReport(team);
-//                viewExperienceReport(team);
-//                if (team.getPlayers().size() <= 0) {
-//                    System.out.printf("There is not players on team: %s\n\n", team.getTeamName());
-//                } else {
-//                }
-//            }
-//        }
         try {
             league.validatePlayersInsideTeams();
             for (Team team : league.getTeams()) {
