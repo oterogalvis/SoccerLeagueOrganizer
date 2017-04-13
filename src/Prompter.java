@@ -31,135 +31,197 @@ public class Prompter {
         return input;
     }
 
-    private String getInput(String output) {
-        System.out.println(output);
-        return getInput();
-    }
-
     private int getInputInt() {
-        int input = 0;
-        while (input < 1) {
-            try {
-                input = Integer.parseInt(getInput());
-            } catch (NumberFormatException nfe) {
-                System.out.println("Input must be numeric.");
-                input = 0;
-            }
-            if (input < 1) {
-                System.out.println("Input must be equal or higher than 1.");
-            }
+        try {
+            int input = Integer.parseInt(getInput());
+            return input;
+        } catch (NumberFormatException nfe) {
+            System.out.println("Input must be an integer, please try again.");
         }
-        return input;
+        return getInputInt();
     }
 
-    private int promptForIndex(List<String> options, String optionsTitle) {
+    private int promptForIndex(List<String> options, String optionsTitle) throws IllegalArgumentException {
         System.out.println(optionsTitle);
         int index = 1;
         for (String option : options) {
             System.out.printf("\t%d) %s\n", index, option);
             index++;
         }
-        return (getInputInt() - 1);
+        int input = getInputInt();
+        if (input > options.size() || input < 1) {
+            throw new IllegalArgumentException("Unknown option.");
+        }
+        return input -1 ;
     }
 
     public void menu() {
-        boolean done = false;
-        List<String> menuOptions = Arrays.asList(
-                "Create new team",
-                "Add player to a Team",
-                "Remove player from a Team",
-                "League Balance Report",
-                "Exit");
-        while (!done) {
-            String option = menuOptions.get(promptForIndex(menuOptions, "Choose your option: "));
-            switch (option) {
-                case "Create new team":
-                    createdNewTeamIfPossible();
-                    break;
-                case "Add player to a Team":
-                    addPlayerMenu();
-                    break;
-                case "Remove player from a Team":
-                    removePlayerMenu();
-                    break;
-                case "League Balance Report":
-                    leagueBalanceReport();
-                    break;
-                case "Exit":
-                    System.out.printf("Exiting...");
-                    done = true;
-                    break;
-                default:
-                    System.out.println("Unkown option. Please try again.\n");
-                    break;
+        try {
+            boolean done = false;
+            List<String> menuOptions = Arrays.asList(
+                    "Create new team",
+                    "Add player to a Team",
+                    "Remove player from a Team",
+                    "League Balance Report",
+                    "Get roster from a team",
+                    "Exit");
+            while (!done) {
+                String option = menuOptions.get(promptForIndex(menuOptions, "Choose your option: "));
+                switch (option) {
+                    case "Create new team":
+                        createdNewTeamIfPossible();
+                        break;
+                    case "Add player to a Team":
+                        addPlayerMenu();
+                        break;
+                    case "Remove player from a Team":
+                        removePlayerMenu();
+                        break;
+                    case "League Balance Report":
+                        leagueBalanceReport();
+                        break;
+                    case "Get roster from a team":
+                        rosterMenu();
+                        break;
+                    case "Exit":
+                        System.out.printf("Exiting...");
+                        done = true;
+                        break;
+                    default:
+                        System.out.println("Error, check menu()\n");
+                        break;
+                }
             }
+        } catch (IllegalArgumentException iae) {
+            System.out.printf("%s please try again.\n\n", iae.getMessage());
+            menu();
         }
     }
 
     private void createdNewTeamIfPossible() {
-        if (league.isPossibleCreatedTeam()) {
+        try {
+            league.validateisPossibleCreatedTeam();
             Team team = createNewTeam();
             System.out.printf("The team %s under %s have been created.%n%n", team.getTeamName(), team.getCoach());
-        } else {
-            System.out.printf("Is not possible to created more teams than players availables.\n\n", league.getTeams().size(), league.getPlayers().size());
+        } catch (IllegalArgumentException iae) {
+            System.out.printf("%s\n\n", iae.getMessage());
         }
     }
 
     private void addPlayerMenu() {
-        List<String> browseMenu = Arrays.asList("Browse by player", "Browse by team");
-        int index = promptForIndex(browseMenu, "Choose your option: ");
-        String option = browseMenu.get(index);
-        switch (option) {
-            case "Browse by player":
-                addPlayerIfPossible("player");
-                break;
-            case "Browse by team":
-                addPlayerIfPossible("team");
-                break;
-            default:
-                System.out.println("Unkown option. Please try again.\n");
-                break;
+        try {
+            league.validateIfPlayersAvailable();
+            league.validateIfTeamsExist();
+            List<String> browseMenu = Arrays.asList("Browse by player", "Browse by team");
+            int index = promptForIndex(browseMenu, "Choose your option: ");
+            String option = browseMenu.get(index);
+            switch (option) {
+                case "Browse by player":
+                    addPlayerIfPossible("player");
+                    break;
+                case "Browse by team":
+                    addPlayerIfPossible("team");
+                    break;
+                default:
+                    System.out.println("Error, check addPlayerMenu()\n");
+                    break;
+            }
+        } catch (IllegalArgumentException iae) {
+            if (iae.getMessage().contains("Unknown")) {
+                System.out.printf("%s please try again.\n\n", iae.getMessage());
+                addPlayerMenu();
+            } else {
+                System.out.printf("%s\n\n", iae.getMessage());
+                menu();
+            }
         }
-
     }
 
     private void removePlayerMenu() {
-        List<String> browseMenu = Arrays.asList("Browse by player", "Browse by team");
-        int index = promptForIndex(browseMenu, "Choose your option: ");
-        String option = browseMenu.get(index);
-        switch (option) {
-            case "Browse by player":
-                removePlayerIfPossible("player");
-                break;
-            case "Browse by team":
-                removePlayerIfPossible("team");
-                break;
-            default:
-                System.out.println("Unkown option. Please try again.\n");
-                break;
+        try {
+            league.validatePlayersInsideTeams();
+            List<String> browseMenu = Arrays.asList("Browse by player", "Browse by team");
+            int index = promptForIndex(browseMenu, "Choose your option: ");
+            String option = browseMenu.get(index);
+            switch (option) {
+                case "Browse by player":
+                    removePlayerIfPossible("player");
+                    break;
+                case "Browse by team":
+                    removePlayerIfPossible("team");
+                    break;
+                default:
+                    System.out.println("Error, check RemovePlayerMenu().\n");
+                    break;
+            }
+        } catch (IllegalArgumentException iae) {
+            if (iae.getMessage().contains("Unknown")) {
+                System.out.printf("%s please try again.\n\n", iae.getMessage());
+                removePlayerMenu();
+            } else {
+                System.out.printf("%s\n\n", iae.getMessage());
+                menu();
+            }
         }
     }
 
     private void leagueBalanceReport() {
-        if (league.getAllPlayersIsideTeams().size() <= 0) {
-            System.out.println("There is no players inside any team.\n");
-        } else {
+//        if (league.getAllPlayersIsideTeams().size() <= 0) {
+//            System.out.println("There is no players inside any team.\n");
+//        } else {
+//            for (Team team : league.getTeams()) {
+//                System.out.printf("League Balance Report for team %s\n", team.getTeamName());
+//                viewHeightReport(team);
+//                viewExperienceReport(team);
+//                if (team.getPlayers().size() <= 0) {
+//                    System.out.printf("There is not players on team: %s\n\n", team.getTeamName());
+//                } else {
+//                }
+//            }
+//        }
+        try {
+            league.validatePlayersInsideTeams();
             for (Team team : league.getTeams()) {
-                if (team.getPlayers().size() <= 0) {
-                    System.out.printf("There is not players on team: %s\n\n", team.getTeamName());
-                } else {
-                    System.out.printf("League Balance Report for team %s\n", team.getTeamName());
+                System.out.printf("League Balance Report for team %s\n", team.getTeamName());
+                try {
+                    team.validatePlayersInsideThisTeam();
                     viewHeightReport(team);
                     viewExperienceReport(team);
+                } catch (IllegalArgumentException iae) {
+                    System.out.printf("%s\n\n", iae.getMessage());
                 }
             }
+        } catch (IllegalArgumentException iae) {
+            System.out.printf("%s\n\n", iae.getMessage());
         }
+    }
+
+    private void rosterMenu() {
+        try {
+            league.validatePlayersInsideTeams();
+            Team team = promptForTeam();
+            team.validatePlayersInsideThisTeam();
+            rosterList(team);
+        } catch (IllegalArgumentException iae) {
+            System.out.printf("%s\n\n", iae.getMessage());
+        }
+    }
+
+    private void rosterList(Team team) {
+        System.out.printf("Coach: %s\n", team.getCoach());
+        System.out.printf("Players of the team %s:\n", team.getTeamName());
+        int index = 1;
+        for (Player player : team.getPlayers()) {
+            System.out.printf("%d) %s, %s\n", index, player.getLastName(), player.getFirstName());
+            index++;
+        }
+        System.out.printf("\n");
     }
 
     private void viewExperienceReport(Team team) {
         Map<String, Integer> teamExperience = team.playersByExperience();
         System.out.printf("\tExperience report: \n");
-        System.out.printf("\t\tThe %d %% of the players are experienced.\n" , team.percentageOfExperiencedPlayers(teamExperience));
+        System.out.printf("\t\tThe %d %% of the players are experienced.\n", team.percentageOfExperiencedPlayers(teamExperience));
         System.out.printf("\t\t\t%d experienced players.\n", teamExperience.get("experienced"));
         System.out.printf("\t\t\t%d inexperienced players.\n\n", teamExperience.get("inexperienced"));
     }
@@ -175,11 +237,7 @@ public class Prompter {
     }
 
     private void addPlayerIfPossible(String browseMethod) {
-        if (league.getTeams().size() <= 0) {
-            System.out.println("There are no teams, please created one.\n");
-        } else if (league.getPlayers().size() <= 0) {
-            System.out.println("There is no more players to add.\n");
-        } else if (browseMethod.equals("player")) {
+        if (browseMethod.equals("player")) {
             Player playerToAdd = promptForPlayer(league.getPlayersByNameAndStats(league.getPlayers()), league.getPlayers());
             Team teamToAdd = promptForTeam();
             league.addPlayerToTeam(playerToAdd, teamToAdd);
@@ -195,11 +253,7 @@ public class Prompter {
     }
 
     private void removePlayerIfPossible(String browseMethod) {
-        if (league.getTeams().size() <= 0) {
-            System.out.println("There are no teams, please created one.\n");
-        } else if (league.getAllPlayersIsideTeams().size() <= 0) {
-            System.out.println("There is no players inside any team.\n");
-        } else if (browseMethod.equals("team")) {
+        if (browseMethod.equals("team")) {
             Team teamToRemove = promptForTeam();
             Player playerToRemove = promptForPlayer(league.getPlayersByNameAndStats(teamToRemove.getPlayers()), teamToRemove.getPlayers());
             league.removePlayerFromTeam(playerToRemove, teamToRemove);
@@ -210,13 +264,15 @@ public class Prompter {
             league.removePlayerFromTeam(playerToRemove, teamToRemove);
             System.out.printf("You remove %s, %s from %s.\n\n", playerToRemove.getLastName(), playerToRemove.getFirstName(), teamToRemove.getTeamName());
         } else {
-            System.out.println("Error in addPlayerIfPossible().");
+            System.out.println("Error in removePlayerIfPossible().");
         }
     }
 
     private Team createNewTeam() {
-        String teamName = getInput("Introduce the name of the team: ");
-        String coach = getInput("Introduce the name of the coach: ");
+        System.out.printf("Introduce the name of the team: ");
+        String teamName = getInput();
+        System.out.printf("Introduce the name of the coach: ");
+        String coach = getInput();
         return league.newTeam(teamName, coach);
     }
 
@@ -261,7 +317,4 @@ public class Prompter {
 }
 
 
-// PENDING: IndexOutOfBoundsException.
 // PENDING: DRY. Create generic for prompt methods. <T>
-// PENDING: promptForTeam() should have the same parameters that promptForPlayer().
-// PENDING: find out why the the fancy hash method is better.

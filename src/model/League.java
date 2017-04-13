@@ -40,10 +40,6 @@ public class League {
         return listOfPlayersInsideTeams;
     }
 
-    public boolean isPossibleCreatedTeam() {
-        return teams.size() < players.size();
-    }
-
     public List<String> getPlayersByNameAndStats(List<Player> players) {
         List<String> playersByName = new ArrayList<>();
         for (Player player : players) {
@@ -52,6 +48,30 @@ public class League {
         }
         Collections.sort(playersByName);
         return playersByName;
+    }
+
+    public void validateisPossibleCreatedTeam() {
+        if (teams.size() > players.size()) {
+            throw new IllegalArgumentException("Is not possible to created more teams than players availables.");
+        }
+    }
+
+    public void validateIfTeamsExist() throws IllegalArgumentException {
+        if (getTeams().size() <= 0) {
+            throw new IllegalArgumentException("There is no teams created, please create one.");
+        }
+    }
+
+    public void validatePlayersInsideTeams() throws IllegalArgumentException {
+        if (getAllPlayersIsideTeams().size() <= 0) {
+            throw new IllegalArgumentException("There is no players inside any team.");
+        }
+    }
+
+    public void validateIfPlayersAvailable() throws IllegalArgumentException {
+        if (players.size() <= 0) {
+            throw new IllegalArgumentException("There is no players available.");
+        }
     }
 
     public List<String> getTeamsByName() {

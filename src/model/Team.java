@@ -60,6 +60,12 @@ public class Team implements Comparable<Team> {
         return (experiencedPlayers * 100) / (experiencedPlayers + inexperiencedPlayers);
     }
 
+    public void validatePlayersInsideThisTeam() {
+        if (getPlayers().size() <= 0) {
+            throw new IllegalArgumentException("There are no players inside this team");
+        }
+    }
+
     public void addPlayer(Player player) {
         players.add(player);
     }
@@ -89,7 +95,9 @@ public class Team implements Comparable<Team> {
     }
 
     public List<Player> getPlayers() {
-        return new ArrayList(players);
+        List<Player> playersList = new ArrayList(players);
+        Collections.sort(playersList);
+        return playersList;
     }
 
     public void setPlayers(Set<Player> players) {
