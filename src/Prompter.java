@@ -13,11 +13,13 @@ import java.util.*;
 public class Prompter {
     private BufferedReader bufferedReader;
     private League league;
+    private boolean exit;
     private static Prompter instance;
 
     private Prompter() {
         bufferedReader = new BufferedReader(new InputStreamReader(System.in));
         league = League.getLeague();
+        exit = false;
     }
 
     private String getInput() {
@@ -57,7 +59,6 @@ public class Prompter {
 
     public void menu() {
         try {
-            boolean done = false;
             List<String> menuOptions = Arrays.asList(
                     "Create new team",
                     "Add player to a Team",
@@ -65,7 +66,7 @@ public class Prompter {
                     "League Balance Report",
                     "Get roster from a team",
                     "Exit");
-            while (!done) {
+            while (!exit) {
                 String option = menuOptions.get(promptForIndex(menuOptions, "Choose your option: "));
                 switch (option) {
                     case "Create new team":
@@ -85,7 +86,7 @@ public class Prompter {
                         break;
                     case "Exit":
                         System.out.printf("Exiting...");
-                        done = true;
+                        exit = true;
                         break;
                     default:
                         System.out.println("Error, check menu()\n");
