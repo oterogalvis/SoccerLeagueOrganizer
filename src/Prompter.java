@@ -303,6 +303,3 @@ public class Prompter {
         return instance;
     }
 }
-
-
-// PENDING: DRY. Create generic for prompt methods. <T>
